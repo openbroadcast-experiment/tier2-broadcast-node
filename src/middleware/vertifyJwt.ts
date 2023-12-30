@@ -10,6 +10,7 @@ let resolver = new Resolver({...pkhDidResolver()});
 
 export const JwtVerifyHeaders = Type.Object({
     "authorization": Type.String(),
+    "x-user-did": Type.String(),
 })
 export type JwtVerifyHeadersType = Static<typeof JwtVerifyHeaders>
 
@@ -25,18 +26,22 @@ export const verifyJwt = async (request: FastifyRequest, reply: FastifyReply) =>
         if (!clientJwt) {
             return reply.status(400).send(`You are missing a required header: "Authorization"`);
         }
+        const clientDid = headers["x-user-did"];
+        if (!clientDid) {
+            return reply.status(400).send(`You are missing a required header: "X-User-DID"`);
+        }
 
         request.jwt = clientJwt;
 
         //verify the JWT
-        // const isVerified = (await didJWT.verifyJWT(clientJwt, {
-        //     resolver,
-        //     audience: config.did //TODO Is this actually the right audience?
-        // })).verified;
-        //
-        // if (!isVerified) {
-        //     return reply.status(401).send("Failed to verify jwt");
-        // }
+        const isVerified = (await didJWT.verifyJWT(clientJwt, {
+            resolver,
+            audience: clientDid
+        })).verified;
+
+        if (!isVerified) {
+            return reply.status(401).send("Failed to verify jwt");
+        }
 
     } catch (e: any) {
         if (e instanceof HeaderHasArrayValueError) {

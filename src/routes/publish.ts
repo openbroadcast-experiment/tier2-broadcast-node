@@ -31,9 +31,10 @@ export async function publishRoute(
             // console.log(`Writing client message from ${clientDid} to my own database`)
             const res = await prisma.published_data.create({
                 data: {
-                    user_did: "TODO REPLACE ME WITH SERVER PUBKEY",
-                    user_jwt: "TODO REPLACE ME WITH SERVER PUBKEY",
-                    user_pow_solution: "TODO REPLACE ME WITH SERVER PUBKEY",
+                    user_did: userDid,
+                    user_jwt: jwt,
+                    user_pow_solution: powSolution,
+                    pow_challenge: config.powChallenge,
                     tier1_endpoint: config.tier1Endpoint,
                     message: JSON.stringify(message),
                 }

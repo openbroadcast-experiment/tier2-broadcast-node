@@ -35,3 +35,5 @@ To reemphasize *everything in insomnia expects you to use the same private key f
 ```
 
 Note: If you change the tables in the database, you need to re-run the step to generate code
+
+If you hate yourself, you can run `pnpm fml` to create a PoW solution and JWT out of your .env. This would only ever be necessary if the shared private key we use for local development changes.

@@ -1,4 +1,6 @@
 import postgres from "postgres";
+import dotenv from "dotenv"
+dotenv.config()
 
 const runUpMigrations = async () => {
     console.log("Running migration script...")
@@ -17,6 +19,7 @@ const runUpMigrations = async () => {
                   user_did          text                     null,
                   user_jwt          text                     null,
                   user_pow_solution text                     null,
+                  pow_challenge     text                     null,
                   tier1_endpoint    text                     null,
                   message           text                     null,
                   created_at        timestamp with time zone not null default now()

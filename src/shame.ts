@@ -1,10 +1,11 @@
-
+import * as didJWT from 'did-jwt'; //NEW WINNER  didJWT.ES256KSigner(didJWT.hexToBytes(debug_parent_privatekey))
 
 //TODO This does not belong in the backend code and needs to be removed.
 // I added it here just so I don't have to go to the front end to get the PoW solution
-
+// This file generates a valid PoW solution and a valid JWT that can be used in insomnia
 import {Buffer} from "node:buffer";
 import {argon2id} from "hash-wasm";
+import { config } from './config.js';
 
 
 const validatorDid = "did:pkh:eip155:1:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
@@ -49,6 +50,20 @@ export const doProofOfWork = async (): Promise<{ answerHash: string }> => {
     throw new Error('Time Out ~ proofOfWork ~ ');
 };
 
+const generateJWT = async() => {
+    const userDID = process.env.USER_DID;
+    if(!userDID) {
+        throw new Error("USER_DID env variable not set, cant create jwt")
+    }
+    let jwt = await didJWT.createJWT(
+      { aud: userDid, iat: undefined, name: 'example parent forever access jwt', latency_time_stamp_check: Date.now() },
+      { issuer: config.did, signer: config.didJwtSigner },
+      { alg: 'ES256K' });
+    return jwt
+}
+
 const solution = await doProofOfWork()
+const jwt = await generateJWT()
 console.log("solution", solution)
+console.log("jwt", jwt)
 process.exit(0)
