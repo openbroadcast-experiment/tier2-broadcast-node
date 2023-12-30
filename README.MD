@@ -26,7 +26,8 @@ To reemphasize *everything in insomnia expects you to use the same private key f
 ```
 3. Generate typescript + prisma client code from tables in the postgres database
 ```bash
-  pnpm prisma generate --schema=./schema.prisma
+  npx prisma db pull --schema=./schema.prisma
+  npx prisma generate --schema=./schema.prisma
 ```
 4. Run the server:
 ```bash
