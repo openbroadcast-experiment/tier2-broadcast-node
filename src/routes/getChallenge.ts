@@ -1,4 +1,5 @@
 import {FastifyInstance, FastifyServerOptions} from 'fastify';
+import {config} from "../config.js";
 
 export default async function getChallengeRoute(
     server: FastifyInstance,
@@ -9,7 +10,7 @@ export default async function getChallengeRoute(
         url: "/proofOfWork/getChallenge",
         schema: {},
         handler: async (request, reply) => {
-            return reply.status(200).send({serverDid: "TODO REPLACE ME WITH SERVER PUBKEY"});
+            return reply.status(200).send({serverDid: config.did});
         },
     });
 }

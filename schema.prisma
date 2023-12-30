@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "./src/__generated__/"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model published_data {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_did          String?
+  user_jwt          String?
+  user_pow_solution String?
+  tier1_endpoint    String?
+  message           String?
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+}

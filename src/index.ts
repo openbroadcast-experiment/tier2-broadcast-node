@@ -1,19 +1,21 @@
 import cors from '@fastify/cors';
 import fastify from 'fastify';
+import getChallengeRoute from "./routes/getChallenge.js";
+import {PrismaClient} from '@prisma/client'
+import {publishRoute} from "./routes/publish.js";
+import {TypeBoxTypeProvider} from "@fastify/type-provider-typebox"; //Generate this with `npx prisma generate`
 
+export const prisma = new PrismaClient()
 
 const server = fastify({
     logger: true
-});
+}).withTypeProvider<TypeBoxTypeProvider>();
 server.register(cors, {
     origin: '*',
 });
 
-server.register(registerApi);
-
-// server.get('/', async (request, reply) => {
-//   return reply.send(rustLib.hello());
-// })
+server.register(getChallengeRoute); // /getChallenge
+server.register(publishRoute); // /publish
 
 server.listen(
     {
@@ -37,17 +39,4 @@ listeners.forEach((signal) => {
     });
 });
 
-//
-// if (require.main === module) {
-//   // called directly i.e. "node app"
-//   await init().listen({ port: 8080 }, (err) => {
-//     if (err) console.error(err);
-//     console.log('server listening on 3000');
-//   });
-// } else {
-//   // required as a module => executed on aws lambda
-//   module.exports = init;
-// }
-
-// module.exports = init;
 
