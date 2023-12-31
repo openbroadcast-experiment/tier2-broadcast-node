@@ -10,7 +10,7 @@ import {prisma} from "../index.js";
 import {config} from "../config.js";
 
 export const PublishBody = Type.Object({
-    message: Type.String(), //TODO A string will work for now, but we need this to be "any" with an encoding param later
+    message: Type.Object({}), //TODO A string will work for now, but we need this to be "any" with an encoding param later
 })
 export type PublishBodyType = Static<typeof PublishBody>
 
