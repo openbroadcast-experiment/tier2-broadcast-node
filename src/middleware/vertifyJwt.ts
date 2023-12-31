@@ -28,7 +28,7 @@ export const verifyJwt = async (request: FastifyRequest, reply: FastifyReply) =>
         }
         const clientDid = headers["x-user-did"];
         if (!clientDid) {
-            return reply.status(400).send(`You are missing a required header: "X-User-DID"`);
+            return reply.status(400).send(`You are missing a required header: "X-uqser-DID"`);
         }
 
         request.jwt = clientJwt;

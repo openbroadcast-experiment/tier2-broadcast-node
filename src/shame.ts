@@ -6,10 +6,12 @@ import * as didJWT from 'did-jwt'; //NEW WINNER  didJWT.ES256KSigner(didJWT.hexT
 import {Buffer} from "node:buffer";
 import {argon2id} from "hash-wasm";
 import { config } from './config.js';
+import PeerId from 'peer-id';
 
 
 const validatorDid = "did:pkh:eip155:1:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 const userDid = "did:pkh:eip155:1:0x14dC79964da2C08b23698B3D3cc7Ca32193d9955"
+
 export const doProofOfWork = async (): Promise<{ answerHash: string }> => {
     const randomHexString = () => {
         let size = Math.floor(Math.random() * Math.floor(500));
@@ -64,6 +66,9 @@ const generateJWT = async() => {
 
 const solution = await doProofOfWork()
 const jwt = await generateJWT()
+
+const generatePrivateKey = await PeerId.create({keyType: "secp256k1"})
+console.log("generated libp2p private key", generatePrivateKey.toJSON())
 console.log("solution", solution)
 console.log("jwt", jwt)
 process.exit(0)

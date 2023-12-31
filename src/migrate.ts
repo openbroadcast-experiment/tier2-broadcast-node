@@ -43,7 +43,9 @@ const runDownMigrations = async () => {
     await sql`DROP TABLE IF EXISTS "published_data" CASCADE;`
     console.log("Dropped published_data table")
 }
+
 await runDownMigrations()
 await runUpMigrations()
+
 console.log("Finished running migrations, you must now run `./generate-schema.sh` to generate typescript types + ORM")
 process.exit(0)
