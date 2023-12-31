@@ -16,7 +16,7 @@ export type JwtVerifyHeadersType = Static<typeof JwtVerifyHeaders>
 
 // This spam protection middleware requires the user to submit a solved proof of work challenge to access an underlying route
 // It requires the user to submit a valid JWT through the Authorization header
-export const verifyJwt = async (request: FastifyRequest, reply: FastifyReply) => {
+export const verifySelfSignedJwt = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         console.log("Verifying the user's JWT")
         const headers = disallowArrayHeaders(request.headers) as JwtVerifyHeadersType

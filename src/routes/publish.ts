@@ -5,7 +5,7 @@
 import {FastifyInstance, FastifyServerOptions} from "fastify";
 import {Static, Type} from "@sinclair/typebox";
 import {ProofOfWorkHeaders, ProofOfWorkHeadersType, requireProofOfWork} from "../middleware/proofOfWork.js";
-import {JwtVerifyHeaders, JwtVerifyHeadersType, verifyJwt} from "../middleware/vertifyJwt.js";
+import {JwtVerifyHeaders, JwtVerifyHeadersType, verifySelfSignedJwt} from "../middleware/vertifyJwt.js";
 import {prisma} from "../index.js";
 import {config} from "../config.js";
 
@@ -19,7 +19,7 @@ export async function publishRoute(
     options: FastifyServerOptions,
 ) {
     server.post<{ Headers: ProofOfWorkHeadersType & JwtVerifyHeadersType, Body: PublishBodyType , jwt: string}>("/publish", {
-        preHandler: [requireProofOfWork, verifyJwt],
+        preHandler: [requireProofOfWork, verifySelfSignedJwt],
         schema: {
             headers: {...ProofOfWorkHeaders, ...JwtVerifyHeaders},
             body: PublishBody,
