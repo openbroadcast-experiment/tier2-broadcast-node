@@ -35,14 +35,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Prepare IP List
-        id: setup-matrix
-        run: |
-          # Convert comma-separated list to JSON array
-          IP_JSON=$(echo '${{ secrets.EC2_INSTANCES }}' | jq -R 'split(",")')
-          echo "::set-output name=ip_list::$IP_JSON"
       - name: Deploy to ec2
         uses: ./.github/actions/deploy-ec2
         with:
           ec2_host: ${{ matrix.ip }}
           ec2_ssh_private_key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
