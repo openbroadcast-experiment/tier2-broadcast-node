@@ -13,12 +13,25 @@ jobs:
         image_tag: ${{ github.sha }}
         dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Prepare IP List
+        id: set-matrix
+        run: |
+          IP_JSON=$(echo '${{ secrets.YOUR_PLAINTEXT_IP_LIST_SECRET }}' | jq -R 'split(",")')
+          echo "::set-output name=matrix::{\"ip\":$IP_JSON}"
+
   deploy:
+    needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        ip: ${{fromJson(steps.setup-matrix.outputs.ip_list)}}
+      matrix: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
