@@ -1,4 +1,7 @@
 # Phase 1: Build
+ARG GO_VERSION=1.21
+
+
 FROM node:21-alpine as build
 
 WORKDIR /usr/src/app
@@ -24,5 +27,5 @@ COPY --from=build /usr/src/app/dist ./dist
 COPY package*.json ./
 EXPOSE 8080
 
-CMD [ "pnpm", "start" ]
+CMD [ "pnpm", "start"]
 #CMD tail -f /dev/null

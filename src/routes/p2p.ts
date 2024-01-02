@@ -16,7 +16,7 @@ const SubscribeToTopicBody = Type.Object({
 })
 const PublishToTopicBody = Type.Object({
   topic: Type.String(),
-  message: Type.Object({}),
+  message: Type.String(),
 })
 type SubscibersQuerystringType = Static<typeof SubscibersQuerystring>
 type AllInOneQuerystringType = Static<typeof AllInOneQuerystring>
@@ -70,13 +70,15 @@ export default async function p2pRoutes(
         peerId: libp2pNode.peerId,
         listenAddresses: libp2pNode.getMultiaddrs(),
         peers: libp2pNode.services.pubsub.getPeers(),
+        connections: libp2pNode.getConnections(),
+        libp2pPeers: libp2pNode.getPeers(),
+        dialQueue: libp2pNode.getDialQueue(),
         topics,
         subscribers,
         config,
         transmissionHistory,
         eventHistory,
       }
-
 
       if(!showSensitive){
         base.config = {
