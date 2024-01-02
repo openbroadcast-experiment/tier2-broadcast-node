@@ -15,7 +15,7 @@
     "eslint-check": "eslint . --ext .ts",
     "eslint-fix": "eslint . --ext .ts --fix",
     "build": "tsc --project .",
-    "start": "pnpm build && node ./dist/index.js",
+    "start": "node ./dist/index.js",
     "generate": "prisma generate --schema=./schema.prisma",
     "fml": "pnpm build && node ./dist/shame.js"
   },
