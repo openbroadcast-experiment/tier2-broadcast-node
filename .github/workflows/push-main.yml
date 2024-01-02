@@ -26,7 +26,6 @@ jobs:
           IP_JSON=$(echo '${{ secrets.EC2_INSTANCES }}' | jq -R 'split(",")')
           echo "Matrix JSON: $IP_JSON"
           echo "::set-output name=matrix::{\"ip\":$IP_JSON}"
-
   deploy:
     needs: prepare-matrix
     runs-on: ubuntu-latest
