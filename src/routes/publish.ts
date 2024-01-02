@@ -10,7 +10,7 @@ import { libp2pNode } from '../p2p/node.js';
 import { CloudEvent, CloudEventV1 } from 'cloudevents';
 
 export const PublishBody = Type.Object({
-  data: Type.Object({}), //TODO A string will work for now, but we need this to be "any" with an encoding param later
+  data: Type.Optional(Type.Object({})), //TODO A string will work for now, but we need this to be "any" with an encoding param later
 });
 export type PublishBodyType = Static<typeof PublishBody>
 

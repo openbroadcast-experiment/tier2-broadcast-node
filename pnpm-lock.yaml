@@ -17,6 +17,9 @@ dependencies:
   '@fastify/type-provider-typebox':
     specifier: ^3.6.0
     version: 3.6.0(@sinclair/typebox@0.32.4)
+  '@ipld/dag-json':
+    specifier: ^10.1.6
+    version: 10.1.6
   '@libp2p/crypto':
     specifier: ^3.0.3
     version: 3.0.3
@@ -351,6 +354,14 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.1:
     resolution: {integrity: sha512-dvuCeX5fC9dXgJn9t+X5atfmgQAzUOWqS1254Gh0m6i8wKd10ebXkfNKiRK+1GWi/yTvvLDHpoxLr0xxxeslWw==}
+
+  /@ipld/dag-json@10.1.6:
+    resolution: {integrity: sha512-y3KHYEzUUMPduJEZiy9fe89dG8Or1fYiYM8fPPlec1BE7gUWcZVtJmVQKodluT5N4O8S8xi5iTF83pcN9GXZTA==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      cborg: 4.0.5
+      multiformats: 13.0.0
+    dev: false
 
   /@leichtgewicht/ip-codec@2.0.4:
     resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
@@ -1404,6 +1415,11 @@ packages:
     resolution: {integrity: sha512-3j4DaoTrsCD1MRkTF2Soacii0Nx7UHCce0EwUf4fHnggwiE4fbmF2AbnfzayR36DF8KGadfh7M/Yfy625kgPlA==}
     hasBin: true
     dev: true
+
+  /cborg@4.0.5:
+    resolution: {integrity: sha512-q8TAjprr8pn9Fp53rOIGp/UFDdFY6os2Nq62YogPSIzczJD9M6g2b6igxMkpCiZZKJ0kn/KzDLDvG+EqBIEeCg==}
+    hasBin: true
+    dev: false
 
   /chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}

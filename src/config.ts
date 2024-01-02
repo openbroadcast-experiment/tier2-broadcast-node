@@ -23,6 +23,7 @@ export type Config = {
   libp2pPort: number; // The port to run libp2p on
   libp2pHost: string; // The host to run libp2p on
   libp2pPeerId: any; // The peerId of the node
+  debugmode: boolean; 
 
 }
 
@@ -100,6 +101,7 @@ export const config: Config = {
   libp2pPort: parseInt(process.argv[3]) || parseInt(process.env.LIBP2P_PORT) || 4002,
   libp2pHost: process.env.LIBP2P_HOST || '0.0.0.0',
   libp2pPeerId: await peerIdFromKeys(peerIdPub, peerIdPriv),
+  debugmode: process.env.DEBUGMODE === 'true' || false,
 };
 console.log(await getPeerIdFromEthersPrivateKey(etherPrivateKey));
 console.log('finished loading config', config);

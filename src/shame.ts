@@ -7,10 +7,51 @@ import {Buffer} from "node:buffer";
 import {argon2id} from "hash-wasm";
 import { config } from './config.js';
 import PeerId from 'peer-id';
+import * as dag_json  from '@ipld/dag-json'
+import { CID } from "multiformats";
+import { sha256 } from 'multiformats/hashes/sha2' 
+import * as multiformats_json from 'multiformats/codecs/json'
+
 
 
 const validatorDid = "did:pkh:eip155:1:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 const userDid = "did:pkh:eip155:1:0x14dC79964da2C08b23698B3D3cc7Ca32193d9955"
+const payload_empty = JSON.parse(`{}`);
+const payload = JSON.parse(`{"topic":"did:pkh:eip155:1:0x90F79bf6EB2c4f870365E785982E1f101E93b906","message":{"demo":"test message 2"},"data":{"a":1}}`);
+//{"topic":"did:pkh:eip155:1:0x90F79bf6EB2c4f870365E785982E1f101E93b906","message":{"demo":"test message 2"},"data":{"a":1}}
+//{"topic":"did:pkh:eip155:1:0x90F79bf6EB2c4f870365E785982E1f101E93b906","message":{"demo":"test message 2"},"data":{"a":1}}
+//{"topic":"did:pkh:eip155:1:0x90F79bf6EB2c4f870365E785982E1f101E93b906","message":{"demo":"test message 2"},"data":{"a":1}}
+//{"topic":"did:pkh:eip155:1:0x90F79bf6EB2c4f870365E785982E1f101E93b906","message":{"demo":"test message 2"},"data":{"a":1}}
+console.log("🚀 ~ file: shame.ts:21 ~ payload:", payload)
+
+
+const bytes = dag_json.encode(payload) 
+const hash = await sha256.digest(bytes)
+console.log("🚀 ~ file: shame.ts:29 ~ hash:", hash) 
+/*
+// [
+    109, 129,  49,  66, 153,  49,  94,  40,
+     21, 205, 116, 225, 184, 157,  84, 215,
+     37,  95, 102,  92, 102, 177, 226,   4,
+    120,  51,  59, 193, 170, 173, 139, 229
+  ]
+  //[
+    109, 129,  49,  66, 153,  49,  94,  40,
+     21, 205, 116, 225, 184, 157,  84, 215,
+     37,  95, 102,  92, 102, 177, 226,   4,
+    120,  51,  59, 193, 170, 173, 139, 229
+  */
+const cid = CID.create(1, 0x0129, hash).toString()
+console.log("🚀 ~ file: shame.ts:29 ~ cid:", cid) // baguqeeranwatcquzgfpcqfonotq3rhku24sv6zs4m2y6ebdygm54dkvnrpsq
+
+
+
+const bytes_empty = dag_json.encode(payload_empty) 
+const hash_empty = await sha256.digest(bytes_empty)
+console.log("🚀 ~ file: shame.ts:51 ~ hash_empty:", hash_empty)
+const cid_empty = CID.create(1, 0x0129, hash).toString()
+console.log("🚀 ~ file: shame.ts:52 ~ cid_empty:", cid_empty)
+
 
 export const doProofOfWork = async (): Promise<{ answerHash: string }> => {
     const randomHexString = () => {
@@ -64,6 +105,21 @@ const generateJWT = async() => {
     return jwt
 }
 
+
+const generatePayloadJWT = async() => {
+    const userDID = process.env.USER_DID;
+    if(!userDID) {
+        throw new Error("USER_DID env variable not set, cant create jwt")
+    }
+    let jwt = await didJWT.createJWT(
+      { aud: userDid, iat: parseInt(new Date().toISOString()), name: 'payload-sig', payload_cid: cid },
+      { issuer: config.did, signer: config.didJwtSigner },
+      { alg: 'ES256K' });
+    return jwt
+}
+
+const payloadjwt = await generatePayloadJWT();
+console.log("🚀 ~ file: shame.ts:93 ~ payloadjwt:", payloadjwt)
 const solution = await doProofOfWork()
 const jwt = await generateJWT()
 

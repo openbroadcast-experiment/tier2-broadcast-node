@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "dev": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js\"",
+    "dev": "DEBUGMODE=true tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js\"",
     "dev-a": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js 8080 4002\"",
     "dev-b": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js 8081 4003\"",
     "migrate": "pnpm build && node ./dist/migrate.js",
@@ -24,6 +24,7 @@
     "@chainsafe/libp2p-noise": "^14.1.0",
     "@fastify/cors": "^8.5.0",
     "@fastify/type-provider-typebox": "^3.6.0",
+    "@ipld/dag-json": "^10.1.6",
     "@libp2p/crypto": "^3.0.3",
     "@libp2p/dcutr": "^1.0.6",
     "@libp2p/identify": "^1.0.8",
