@@ -1,0 +1,29 @@
+name: Run deploy script on EC2
+description: 'Builds and publishes Docker images to Docker Hub'
+inputs:
+  ec2_host:
+    description: 'EC2 host'
+    required: true
+  ec2_ssh_private_key:
+    description: 'EC2 SSH private key'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v2
+  - name: Setting up SSH key
+    shell: bash
+    run: |
+      mkdir -p ~/.ssh/
+      echo "${{ inputs.ec2_ssh_private_key }}" > ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id_rsa
+      ssh-keyscan -H ${{ inputs.ec2_host }} >> ~/.ssh/known_hosts
+  - name: Upload Script to EC2
+    shell: bash
+    run: |
+      scp -i ~/.ssh/id_rsa ./docker-run.sh root@${{ inputs.ec2_host }}:/root/docker-run.sh
+  - name: Run script on EC2
+    shell: bash
+    run: |
+      ssh -i ~/.ssh/id_rsa root@${{ inputs.ec2_host }} 'bash -s' < /root/docker-run.sh
