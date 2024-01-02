@@ -5,8 +5,11 @@ jobs:
   docker-build-and-push-sha:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Build and Publish Docker
-        uses: ./.github/actions/publish-docker
+        uses: ./.github/actions/build-and-publish-docker-image
         with:
           image_name: 'tier2-publication-node' # Replace with your image name
           image_tag: ${{ github.sha }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}

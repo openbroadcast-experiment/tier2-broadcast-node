@@ -36,8 +36,9 @@ export async function publishRoute(
       const { data } = request.body;
 
       console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
-
-      const res = await libp2pNode.services.pubsub.publish('demo-topic', new TextEncoder().encode(JSON.stringify(data)));
+//Prepare cloud event here
+      const event = {}
+      const res = await libp2pNode.services.pubsub.publish('demo-topic', new TextEncoder().encode(JSON.stringify(event)));
       return reply.status(200).send(res);
     },
   });
