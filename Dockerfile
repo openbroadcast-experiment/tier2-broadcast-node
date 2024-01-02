@@ -13,7 +13,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 
 COPY . .
-RUN pnpm run build
+RUN npx prisma generate && pnpm run build
 
 # Phase 2: Run
 FROM node:21-alpine
