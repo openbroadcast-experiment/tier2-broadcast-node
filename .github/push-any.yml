@@ -1,0 +1,12 @@
+name: Push (Any Branch)
+on:
+  push:
+jobs:
+  docker-build-and-push-sha:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and Publish Docker
+        uses: ./.github/actions/publish-docker
+        with:
+          image_name: 'tier2-publication-node' # Replace with your image name
+          image_tag: ${{ github.sha }}

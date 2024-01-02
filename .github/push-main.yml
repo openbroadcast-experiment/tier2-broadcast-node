@@ -1,0 +1,15 @@
+name: Push (main)
+on:
+  push:
+    branches:
+      - main
+jobs:
+  docker-build-and-push-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and Publish Docker
+        uses: ./.github/actions/publish-docker
+        with:
+          image_name: 'tier2-publication-node' # Replace with your image name
+          image_tag: 'latest'
+  # TODO Deploy to EC2 instances here
