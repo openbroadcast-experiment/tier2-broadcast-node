@@ -23,7 +23,8 @@ jobs:
       - name: Prepare IP List
         id: set-matrix
         run: |
-          IP_JSON=$(echo '${{ secrets.EC2_INSTANCES }}' | jq -R 'split(",")')
+          IP_JSON=$(echo '${{ secrets.YOUR_PLAINTEXT_IP_LIST_SECRET }}' | jq -R 'split(",")')
+          echo "Matrix JSON: $IP_JSON"
           echo "::set-output name=matrix::{\"ip\":$IP_JSON}"
 
   deploy:
@@ -33,8 +34,6 @@ jobs:
       fail-fast: false
       matrix: ${{fromJson(needs.prepare-matrix.outputs.matrix)}}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
       - name: Deploy to ec2
         uses: ./.github/actions/deploy-ec2
         with:
