@@ -43,6 +43,7 @@
     "@trust/keyto": "^1.0.1",
     "@types/keccak": "^3.0.4",
     "axios": "^1.6.3",
+    "cloudevents": "^8.0.0",
     "did-jwt": "^7.4.7",
     "did-resolver": "^4.1.0",
     "dotenv": "^16.3.1",

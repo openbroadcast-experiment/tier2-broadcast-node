@@ -10,4 +10,36 @@
 // Tier 1 verifies the Tier 2 JWT and records the time lag
 // IF tier 2 doesn't respond by TIMEOUT, tier 1 severs the connection to tier 2
 
+import * as didJWT from 'did-jwt'; //NEW WINNER  didJWT.ES256KSigner(didJWT.hexToBytes(debug_parent_privatekey))
+import { FastifyInstance, FastifyServerOptions } from "fastify";
+import { config } from "../config.js";
+import { JwtVerifyHeaders, JwtVerifyHeadersType, verifySelfSignedJwt } from '../middleware/verifyJwt.js';
 
+export async function proofOfLatencyRoute(
+    server: FastifyInstance,
+    options: FastifyServerOptions,
+) {
+    server.post<{ Headers: JwtVerifyHeadersType, jwt: string }>("/proofOfLatency", {
+        preHandler: [verifySelfSignedJwt],
+        schema: {
+            headers: { ...JwtVerifyHeaders },
+            body: {},
+        },
+        handler: async (request, reply) => {
+            const { jwt } = request; //These are added by verifyJwt preHandlers
+
+            const { payload } = didJWT.decodeJWT(jwt)
+
+            const respondingJwt = await didJWT.createJWT(
+                {
+                    latency_time_stamp_check: payload.latency_time_stamp_check,
+                    userEndpoint: process.env.MY_ENDPOINT,
+                    userDid: process.env.USER_DID
+                },
+                { issuer: config.did, signer: config.didJwtSigner },
+                { alg: 'ES256K' });
+
+            return reply.status(200).send(respondingJwt);
+        }
+    });
+}
