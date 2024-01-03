@@ -14,6 +14,7 @@ import { KadDHT, kadDHT } from '@libp2p/kad-dht';
 import { Identify, identify } from '@libp2p/identify';
 import { dcutr } from '@libp2p/dcutr';
 import type {PubSub} from '@libp2p/interface';
+import { yamux } from '@chainsafe/libp2p-yamux';
 
 
 const libp2pNode = await createLibp2p<{
@@ -29,19 +30,12 @@ const libp2pNode = await createLibp2p<{
   },
   transports: [tcp()],
   connectionEncryption: [noise(), plaintext()],
-  streamMuxers: [mplex()],
+  streamMuxers: [yamux(), mplex()],
   // connectionManager:{
   //   dial: true,
   // },
   services: {
     pubsub: gossipsub({
-      // allowPublishToZeroPeers: true,
-      // emitSelf: true,
-      // allowedTopics: [config.tier1Did],
-      // directPeers: [{
-      //     id: peerIdFromString(multiaddr(config.tier1Endpoint).getPeerId()),
-      //     addrs: [multiaddr(config.tier1Endpoint)]
-      // }]
       emitSelf: true,
       allowPublishToZeroPeers: true,
       awaitRpcMessageHandler: true,
@@ -62,7 +56,6 @@ libp2pNode.services.pubsub.addEventListener('message', (message) => {
   //TODO If we can make the peer id predictable, we don't need to check the topic for the DID
   eventHistory.push({ eventType: 'message', data: JSON.stringify(message.detail) })
   const decoded = new TextDecoder().decode(message.detail.data);
-  ;
   try {
     // const json: any = JSON.parse(decoded);
     // const { did, jwt, body } = json;
@@ -84,6 +77,7 @@ libp2pNode.services.pubsub.addEventListener('message', (message) => {
     //   });
     //   return;
     // }
+
     console.log(`successfully processed message`, message, message.detail);
     transmissionHistory.push({ data: decoded, outcome: 'SUCCESS', error: undefined });
   } catch (e) {

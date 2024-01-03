@@ -11,6 +11,9 @@ dependencies:
   '@chainsafe/libp2p-noise':
     specifier: ^14.1.0
     version: 14.1.0
+  '@chainsafe/libp2p-yamux':
+    specifier: ^6.0.1
+    version: 6.0.1
   '@fastify/cors':
     specifier: ^8.5.0
     version: 8.5.0
@@ -264,6 +267,18 @@ packages:
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
       wherearewe: 2.0.1
+    dev: false
+
+  /@chainsafe/libp2p-yamux@6.0.1:
+    resolution: {integrity: sha512-8ar6jph9ZuUUxQ8t8W1MaZqH7f7KvGK2wR7TDGnN0r4QtZc07ICNgVjnolnI9/8bclrI5Um4uMa8QCYKTrdvDQ==}
+    dependencies:
+      '@libp2p/interface': 1.1.0
+      '@libp2p/utils': 5.1.1
+      get-iterator: 2.0.1
+      it-foreach: 2.0.6
+      it-pipe: 3.0.1
+      it-pushable: 3.2.3
+      uint8arraylist: 2.4.8
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -384,8 +399,6 @@ packages:
       protons-runtime: 5.2.1
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /@libp2p/dcutr@1.0.6:
@@ -562,8 +575,6 @@ packages:
       protons-runtime: 5.2.1
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
     dev: false
 
   /@libp2p/peer-id@4.0.3:
@@ -2572,6 +2583,12 @@ packages:
 
   /it-first@3.0.4:
     resolution: {integrity: sha512-FtQl84iTNxN5EItP/JgL28V2rzNMkCzTUlNoj41eVdfix2z1DBuLnBqZ0hzYhGGa1rMpbQf0M7CQSA2adlrLJg==}
+    dev: false
+
+  /it-foreach@2.0.6:
+    resolution: {integrity: sha512-OVosBHJsdXpAyeFlCbe3IGZia+65UykyAznakNsKXK+b99dbhuu/mOnXxTadDEo1GWhKx+WA8RNanKkMf07zQw==}
+    dependencies:
+      it-peekable: 3.0.3
     dev: false
 
   /it-length-prefixed-stream@1.1.5:
