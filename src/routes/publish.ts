@@ -8,7 +8,8 @@ import { ProofOfWorkHeaders, ProofOfWorkHeadersType, requireProofOfWork } from '
 import { JwtVerifyHeaders, JwtVerifyHeadersType, verifySelfSignedJwt } from '../middleware/verifyJwt.js';
 import { libp2pNode } from '../p2p/node.js';
 import { CloudEvent, CloudEventV1 } from 'cloudevents';
-
+import { v4 as uuidv4 } from 'uuid';
+import { config } from '../config.js';
 export const PublishBody = Type.Object({
   data: Type.Optional(Type.Object({})), //TODO A string will work for now, but we need this to be "any" with an encoding param later
 });
@@ -16,6 +17,7 @@ export type PublishBodyType = Static<typeof PublishBody>
 
 export const JwtPubSig = Type.Object({
   'x-user-sig': Type.String(),
+  'x-payload-content-type': Type.String(),
 });
 export type JwtPubSigType = Static<typeof JwtPubSig>
 
@@ -24,7 +26,7 @@ export async function publishRoute(
   options: FastifyServerOptions,
 ) {
   server.post<{
-    Headers: ProofOfWorkHeadersType & JwtVerifyHeadersType,
+    Headers: ProofOfWorkHeadersType & JwtVerifyHeadersType & JwtPubSigType,
     Body: PublishBodyType,
     jwt: string
   }>('/publish', {
@@ -35,20 +37,20 @@ export async function publishRoute(
     },
     handler: async (request, reply) => {
       const { data } = request.body;
-
+      const contentType = request.headers['x-payload-content-type'];
+      const { userDid } = request;
       console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
 
       const ce: CloudEventV1<string> = {
-        id: request.jwt,
-        specversion: '1.0',
-        source: '/publish',
-        datacontenttype: 'application/json', //TODO This can be specified by the user in the POST body, default to application/json
-        type: 'UserPushData',
-        //TODO Missing subject
-        //TODO Missing time
-        //TODO Should we support encoding the data in base64?
+        specversion: "1.0.2",
+        type: "/dili/classifieds",
+        source: userDid,
+        id: uuidv4(),
+        time: (new Date()).toUTCString(),
+        subject: `/dili/classifieds/author/${userDid}/entry_node${config.did}`,
+        datacontenttype: contentType || "application/json",
         data: JSON.stringify(data),
-      };
+      }
       const event = new CloudEvent(ce);
 
       const res = await libp2pNode.services.pubsub.publish('demo-topic', new TextEncoder().encode(JSON.stringify(event)));
