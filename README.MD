@@ -34,6 +34,34 @@ To reemphasize *everything in insomnia expects you to use the same private key f
   pnpm run start
 ```
 
+## Profiling
+1. Install clinic
+```bash
+  pnpm install -g clinic
+```
+2. Run clinic and you'll get profiling visualizations in your web browser. Note that some parts of the script may be commented out (since the full script would open 5 windows)
+    ```bash
+    ./tests/clinic.sh
+    ```
+
+## Deployment
+
+We have CI in [./.github]() that does the following:
+1. Builds the docker image
+2. Pushes the docker image to Docker Hub
+   1. Pushes to main branch will publish to `jidotaikasuru/tier2-publication-node:latest`
+   2. Any push will result in a publish to  `jidotaikasuru/tier2-publication-node:<sha>`
+3. (TODO) Deploys to ECS
+
+# Running two different instances of the server locally
+
+(TODO) The cleanest way to run two or more instances is w/ docker-compose.yaml
+
+For now run:
+```bash
+  pnpm run dev-a dev-b
+```
+
 Note: If you change the tables in the database, you need to re-run the step to generate code
 
 If you hate yourself, you can run `pnpm fml` to create a PoW solution and JWT out of your .env. This would only ever be necessary if the shared private key we use for local development changes.

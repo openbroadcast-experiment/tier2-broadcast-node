@@ -11,11 +11,12 @@
     "dev-a": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js 8080 4002\"",
     "dev-b": "tsc-watch --project . --outDir ./dist --onSuccess \"nodemon ./dist/index.js 8081 4003\"",
     "migrate": "pnpm build && node ./dist/migrate.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \\\"Error: no tests specified\\\" && exit 1",
     "eslint-check": "eslint . --ext .ts",
     "eslint-fix": "eslint . --ext .ts --fix",
     "build": "tsc --project .",
     "start": "node ./dist/index.js",
+    "profile": "node --prof ./dist/index.js",
     "generate": "prisma generate --schema=./schema.prisma",
     "fml": "pnpm build && node ./dist/shame.js"
   },
