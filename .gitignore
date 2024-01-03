@@ -193,3 +193,5 @@ testem.log
 dist/
 .envrc
 .env
+
+.clinic/
