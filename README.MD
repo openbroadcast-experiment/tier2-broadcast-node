@@ -20,6 +20,10 @@ Note that the User private key used in Insomnia is
   docker run -d -v tier2-postgres --name tier2-postgres -p 5432:5432 -e POSTGRES_DB=node_storage -e POSTGRES_PASSWORD=postgres postgres
 ```
 To reemphasize *everything in insomnia expects you to use the same private key for local tier2 development*. Do not change the private key.
+2. Start redis (used for the message queue)
+```bash
+  docker run -d -v tier2-redis --name tier2-redis -p 6379:6379 redis 
+```
 2. Run migrations, these are safe to run multiple times:
 ```bash
   pnpm run migrate
@@ -43,6 +47,21 @@ To reemphasize *everything in insomnia expects you to use the same private key f
     ```bash
     ./tests/clinic.sh
     ```
+   
+## Tracing and metrics
+1. Deploy jaeger
+```bash
+  docker run -d --name jaeger \
+    -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+    -p 5775:5775/udp \
+    -p 6831:6831/udp \
+    -p 6832:6832/udp \
+    -p 5778:5778 \
+    -p 16686:16686 \
+    -p 14268:14268 \
+    -p 9411:9411 \
+    jaegertracing/all-in-one:latest
+```
 
 ## Deployment
 

@@ -12,6 +12,8 @@ The Open Broadcast Node is a turnkey solution that lets you launch a decentraliz
 
 ### Quotas
 
+Interval where you ask peers to tell them what messages they have for a given time period
+
 Each Tier 2 node can have up to 
 1. Tier 2 sends a storage request to Tier 1 network
 2. Some Tier 1 node receives the storage request and: 

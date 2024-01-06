@@ -125,28 +125,11 @@ libp2pNode.addEventListener('peer:discovery', async (evt) => {
 
 libp2pNode.addEventListener('peer:connect', (evt) => {
   console.log('peer:connect %s', evt.detail); // Log connected peer
-  // libp2pNode.services.pubsub.
-  // libp2pNode.services.pubsub.addEventListener()
   eventHistory.push({ eventType: 'peer:connect', data: evt.detail });
-  // libp2pNode.services.pubsub.subscribe("demo-topic");
-  // for()
-  // libp2pNode.dial(evt.detail);
 });
 
-libp2pNode.services.pubsub.subscribe("demo-topic");
+libp2pNode.services.pubsub.subscribe(config.myTopic);
 
-// await node.dial(multiaddr(config.tier1Endpoint))
-// libp2pNode.services.pubsub.subscribe(config.tier1Did);
-// libp2pNode.services.pubsub.subscribe('demo-topic');
-
-// console.log(libp2pNode.services.pubsub.getTopics());
-// console.log(libp2pNode.services.pubsub.getPeers());
-// console.log(libp2pNode.services.pubsub.getSubscribers(config.tier1Did));
-// node.services.pubsub.publish('fruit', new TextEncoder().encode(JSON.stringify({
-//     did: config.tier1Did,
-//     jwt: "test",
-//     body: "banana"
-// })))
 
 // print out listening addresses
 await libp2pNode.start();

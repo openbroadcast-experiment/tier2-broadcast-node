@@ -7,13 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model published_data {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_did          String?
-  user_jwt          String?
-  user_pow_solution String?
-  pow_challenge     String?
-  tier1_endpoint    String?
-  message           String?
-  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source          String?
+  type            String?
+  subject         String?
+  status          String?  @db.VarChar(20)
+  datacontenttype String?
+  data            String?
+  spec_version    String?  @default("1.0.2")
+  time            String?
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([source], map: "source_idx")
+  @@index([subject], map: "subject_idx")
 }

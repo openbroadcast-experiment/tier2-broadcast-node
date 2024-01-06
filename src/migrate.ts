@@ -1,5 +1,7 @@
 import postgres from "postgres";
 import dotenv from "dotenv"
+import { v4 as uuidv4 } from 'uuid';
+import { config } from './config.js';
 dotenv.config()
 
 const runUpMigrations = async () => {
@@ -12,21 +14,28 @@ const runUpMigrations = async () => {
     }
     const sql = postgres(constr)
 
+
     console.log("Creating published_data table...")
     await sql`CREATE TABLE IF NOT EXISTS "published_data"
               (
-                  id                uuid PRIMARY KEY                  DEFAULT gen_random_uuid(), --Use uuid here since the ID will be the connection request ID later
-                  user_did          text                     null,
-                  user_jwt          text                     null,
-                  user_pow_solution text                     null,
-                  pow_challenge     text                     null,
-                  tier1_endpoint    text                     null,
-                  message           text                     null,
-                  created_at        timestamp with time zone not null default now()
+                  id              UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),    --Use uuid here since the ID will be the connection request ID later
+                  source          TEXT                     NULL,
+                  type            TEXT                     NULL,
+                  subject         TEXT                     NULL,
+                  status          VARCHAR(20) CHECK (status IN ('PENDING', 'FAILED', 'SUCCESS')), --Internal column, unrelated to cloud events
+                  datacontenttype TEXT                     NULL,                                  --TODO Add validation on content type
+                  data            TEXT                     NULL,
+                  spec_version    TEXT                     NULL     DEFAULT '1.0.2'::text,
+                  time            TEXT                     NULL,
+                  created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+                  updated_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
               );
     `
-    // await sql`CREATE INDEX IF NOT EXISTS "published_data_user_did_idx" ON "published_data" (user_did);`
+    await sql`CREATE INDEX IF NOT EXISTS "source_idx" ON "published_data" (source);`
+    await sql`CREATE INDEX IF NOT EXISTS "subject_idx" ON "published_data" (subject);`
     console.log("Created published_data table")
+
+
 }
 
 const runDownMigrations = async () => {

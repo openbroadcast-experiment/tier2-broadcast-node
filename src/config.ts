@@ -12,6 +12,9 @@ export type Config = {
   privateKey: string; // Your ethereum wallet private key, must be provided for the application to start
   publicKey: string; // Your ethereum wallet address
   did: string; // Your DID, which will be generated as "did:pkh:eip155:1:<your-address>"
+  myTopic: string; // The topic this node publishes messages to
+  redisUrl: string; // The URL of the redis instance to connect to
+  redisPort: number; // The port of the redis instance to connect to
   // wallet: ethers.Wallet; // Convenience property, ether wallet loaded with your private key ready to use
   powChallenge: string; // Should contain the suffix the must be present in a submitted PoW hash. If unsure, pass "0000"
   tier1Endpoint: string; // For the hackathon submission, there's only one Tier 1 node
@@ -90,10 +93,13 @@ export const config: Config = {
   privateKey: etherPrivateKey,
   publicKey: wallet.address,
   did: 'did:pkh:eip155:1:' + wallet.address,
+  myTopic: requireVarSet('MY_TOPIC'),
   tier1Endpoint: requireVarSet('TIER1_ENDPOINT'),
   tier1Did: requireVarSet('TIER1_DID'),
   databaseUrl: requireVarSet('DATABASE_URL'),
   didJwtSigner: didJWT.ES256KSigner(didJWT.hexToBytes(etherPrivateKey)),
+  redisUrl: process.env.REDIS_URL || 'localhost',
+  redisPort: parseInt(process.env.REDIS_PORT) || 6379,
   // wallet: new ethers.Wallet(requireVarSet('PRIVATE_KEY')),
   powChallenge: process.env.POW_CHALLENGE || '0000',
   port: parseInt(process.argv[2]) || parseInt(process.env.REST_API_PORT) || 8080,

@@ -10,6 +10,7 @@ import { libp2pNode } from '../p2p/node.js';
 import { CloudEvent, CloudEventV1 } from 'cloudevents';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config.js';
+import { internalMessageQueue } from '../queue.js';
 export const PublishBody = Type.Object({
   data: Type.Optional(Type.Object({})), //TODO A string will work for now, but we need this to be "any" with an encoding param later
 });
@@ -41,7 +42,7 @@ export async function publishRoute(
       const { userDid } = request;
       console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
 
-      const ce: CloudEventV1<string> = {
+      const ce: CloudEventV1<any> = {
         specversion: "1.0.2",
         type: "/dili/classifieds",
         source: userDid,
@@ -49,11 +50,9 @@ export async function publishRoute(
         time: (new Date()).toUTCString(),
         subject: `/dili/classifieds/author/${userDid}/entry_node${config.did}`,
         datacontenttype: contentType || "application/json",
-        data: JSON.stringify(data),
+        data: data,
       }
-      const event = new CloudEvent(ce);
-
-      const res = await libp2pNode.services.pubsub.publish('demo-topic', new TextEncoder().encode(JSON.stringify(event)));
+      const res = await internalMessageQueue.add('messages', ce, { removeOnComplete: true, removeOnFail: true });
       return reply.status(200).send(res);
     },
   });
