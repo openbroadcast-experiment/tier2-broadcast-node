@@ -9,12 +9,13 @@ import { mplex } from '@libp2p/mplex';
 import { gossipsub, GossipsubEvents } from '@chainsafe/libp2p-gossipsub';
 import { ping, PingService } from '@libp2p/ping';
 import { mdns } from '@libp2p/mdns';
-import { eventHistory, transmissionHistory } from './history.js';
+import { eventHistory } from './history.js';
 import { KadDHT, kadDHT } from '@libp2p/kad-dht';
 import { Identify, identify } from '@libp2p/identify';
 import { dcutr } from '@libp2p/dcutr';
-import type {PubSub} from '@libp2p/interface';
+import type { PubSub } from '@libp2p/interface';
 import { yamux } from '@chainsafe/libp2p-yamux';
+import { internalMessageQueue } from '../queue.js';
 
 
 const libp2pNode = await createLibp2p<{
@@ -36,7 +37,7 @@ const libp2pNode = await createLibp2p<{
   // },
   services: {
     pubsub: gossipsub({
-      emitSelf: true,
+      // emitSelf: true,
       allowPublishToZeroPeers: true,
       awaitRpcMessageHandler: true,
     }),
@@ -45,54 +46,16 @@ const libp2pNode = await createLibp2p<{
     }),
     dht: kadDHT({}),
     identify: identify(),
-    dcutr: dcutr()
+    dcutr: dcutr(),
   },
   peerDiscovery: [mdns()],
 });
 
 
-
-libp2pNode.services.pubsub.addEventListener('message', (message) => {
+libp2pNode.services.pubsub.addEventListener('message', async (message) => {
   //TODO If we can make the peer id predictable, we don't need to check the topic for the DID
-  eventHistory.push({ eventType: 'message', data: JSON.stringify(message.detail) })
-  const decoded = new TextDecoder().decode(message.detail.data);
-  try {
-    // const json: any = JSON.parse(decoded);
-    // const { did, jwt, body } = json;
-    // if (!did || !jwt || !body) {
-    //   console.log('message body was missing a required property (\'did\',\'jwt\',\'body\') ignoring');
-    //   transmissionHistory.push({
-    //     data: message,
-    //     outcome: 'SKIPPED',
-    //     error: 'message body was missing a required property (\'did\',\'jwt\',\'body\')',
-    //   });
-    //   return;
-    // }
-    // if (did !== config.tier1Did) {
-    //   console.log(`received message from someone other than tier1 (${did}), ignoring`);
-    //   transmissionHistory.push({
-    //     data: message,
-    //     outcome: 'SKIPPED',
-    //     error: `received message from someone other than tier1 (${did}), ignoring`,
-    //   });
-    //   return;
-    // }
-
-    console.log(`successfully processed message`, message, message.detail);
-    transmissionHistory.push({ data: decoded, outcome: 'SUCCESS', error: undefined });
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.log('received a message that is not json, ignoring');
-      transmissionHistory.push({
-        data: message,
-        outcome: 'SKIPPED',
-        error: 'received a message that is not json, ignoring',
-      });
-    } else {
-      console.error('Encountered error processing message through gossipsub', e);
-      transmissionHistory.push({ data:decoded, outcome: 'FAILED', error: e });
-    }
-  }
+  eventHistory.push({ eventType: 'message', data: JSON.stringify(message.detail) });
+  await internalMessageQueue.add(message.detail.data.id, message);
 });
 libp2pNode.services.pubsub.addEventListener('gossipsub:message', (message) => {
   console.log('gossipsub:message:', message.detail);
@@ -107,15 +70,15 @@ libp2pNode.services.pubsub.addEventListener('subscription-change', (message) => 
 libp2pNode.addEventListener('peer:discovery', async (evt) => {
   console.log('Discovered...', evt.detail); // Log
   // await libp2pNode.dial(evt.detail.multiaddrs)
-  for(const addr of evt.detail.multiaddrs){
+  for (const addr of evt.detail.multiaddrs) {
     try {
-      if(addr.toString().includes("127.0.0.1")){
-        console.log("Attempting to connect to  " + addr)
-        await libp2pNode.dial(addr)
-        break
+      if (addr.toString().includes('127.0.0.1')) {
+        console.log('Attempting to connect to  ' + addr);
+        await libp2pNode.dial(addr);
+        break;
       }
     } catch (e) {
-      console.log("Failed to connect to peer:" + e)
+      console.log('Failed to connect to peer:' + e);
     }
   }
   eventHistory.push({ eventType: 'peer:discovery', data: evt.detail });
@@ -130,6 +93,9 @@ libp2pNode.addEventListener('peer:connect', (evt) => {
 
 libp2pNode.services.pubsub.subscribe(config.myTopic);
 
+for (const topic of Object.keys(config.subscribedTopics)) {
+  libp2pNode.services.pubsub.subscribe(topic);
+}
 
 // print out listening addresses
 await libp2pNode.start();

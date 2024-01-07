@@ -11,8 +11,9 @@ import p2pRoutes from './routes/p2p.js';
 export const prisma = new PrismaClient();
 
 //@ts-expect-error
-BigInt.prototype.toJSON = function() { return this.toString() }
-
+BigInt.prototype.toJSON = function() {
+  return this.toString();
+};
 
 // Start REST API server
 const server = fastify({

@@ -45,7 +45,7 @@ export const verifySelfSignedJwt = async (request: FastifyRequest, reply: Fastif
                 return reply.status(401).send("Failed becuase body is not json");
             }
 
-            if(config.debugmode)
+            if(config.debugMode)
             console.log("🚀 ~ file: verifyJwt.ts:48 ~ verifySelfSignedJwt ~ data:", JSON.stringify(data))
             const bytes = dag_json.encode(data) 
             /*
@@ -61,12 +61,12 @@ export const verifySelfSignedJwt = async (request: FastifyRequest, reply: Fastif
             //console.log("🚀 ~ file: verifyJwt.ts:51 ~ verifySelfSignedJwt ~ hash:", hash)
             const cid = CID.create(1, 0x0129, hash).toString()
             
-            if(config.debugmode){
+            if(config.debugMode){
                 console.log("🚀 ~ file: verifyJwt.ts:50 ~ verifySelfSignedJwt ~ cid:", cid)
                 //console.log(" for user  payloadsig should be ")
             }
             const decoded_auth_jwt = didJWT.decodeJWT(authorization);
-            if(config.debugmode)
+            if(config.debugMode)
             console.log("🚀 ~ file: verifyJwt.ts:53 ~ verifySelfSignedJwt ~ decoded_auth_jwt:", decoded_auth_jwt)
             if(!decoded_auth_jwt.payload.payload_cid)
             return reply.status(401).send("payload_cid missing in jwt");

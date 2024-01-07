@@ -1,0 +1,179 @@
+# This file gives you a node setup of 4 nodes. You can run a local setup against it to test libp2p behavior
+
+version: '3.9'
+networks:
+  network1:
+  network2:
+  network3:
+  network4:
+
+services:
+  service1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres1
+      - redis1
+    restart: on-failure
+    environment:
+      PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      REST_API_PORT: 8080
+      LIBP2P_PORT: 4003
+      LIBP2P_PRIVATE_KEY: "CAISIGfqjWbopTq5/0qwnzRI3rpWpQzvNGxgs2MCHyhOZmZT"
+      LIBP2P_PUBLIC_KEY: "CAISIQItZvtcRbkVNMwWLBjgoxNFm7DImzdMw1o6kp+ApD6gCw=="
+      MY_TOPIC: "decentralized-job-post-1"
+      REDIS_URL: "redis1"
+      REDIS_PORT: 6379
+      SUBSCRIBED_TOPICS: "decentralized-job-post-2,decentralized-job-post-3,decentralized-job-post-4"
+      FULL_STORAGE: false
+      DATABASE_URL: "postgres://postgres:postgres@postgres1:5432/node_storage"
+    ports:
+      - 8081:8080
+    networks:
+      - network1
+  service2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres2
+      - redis2
+    restart: on-failure
+    environment:
+      PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      REST_API_PORT: 8080
+      LIBP2P_PORT: 4003
+      LIBP2P_PRIVATE_KEY: "CAISIGfqjWbopTq5/0qwnzRI3rpWpQzvNGxgs2MCHyhOZmZT"
+      LIBP2P_PUBLIC_KEY: "CAISIQItZvtcRbkVNMwWLBjgoxNFm7DImzdMw1o6kp+ApD6gCw=="
+      MY_TOPIC: "decentralized-job-post-2"
+      REDIS_URL: "redis2"
+      REDIS_PORT: 6379
+      SUBSCRIBED_TOPICS: "decentralized-job-post-1,decentralized-job-post-3,decentralized-job-post-4"
+      FULL_STORAGE: "false"
+      DATABASE_URL: "postgres://postgres:postgres@postgres2:5432/node_storage"
+    ports:
+      - 8082:8080
+    networks:
+      - network2
+
+  service3:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres3
+      - redis3
+    restart: on-failure
+    environment:
+      PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      REST_API_PORT: 8080
+      LIBP2P_PORT: 4003
+      LIBP2P_PRIVATE_KEY: "CAISIGfqjWbopTq5/0qwnzRI3rpWpQzvNGxgs2MCHyhOZmZT"
+      LIBP2P_PUBLIC_KEY: "CAISIQItZvtcRbkVNMwWLBjgoxNFm7DImzdMw1o6kp+ApD6gCw=="
+      MY_TOPIC: "decentralized-job-post-3"
+      REDIS_URL: "redis3"
+      REDIS_PORT: 6379
+      SUBSCRIBED_TOPICS: "decentralized-job-post-1,decentralized-job-post-2,decentralized-job-post-4"
+      FULL_STORAGE: "false"
+      DATABASE_URL: "postgres://postgres:postgres@postgres3:5432/node_storage"
+    ports:
+      - 8083:8080
+    networks:
+      - network3
+
+  service4:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres4
+      - redis4
+    environment:
+      PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      REST_API_PORT: 8080
+      LIBP2P_PORT: 4003
+      LIBP2P_PRIVATE_KEY: "CAISIGfqjWbopTq5/0qwnzRI3rpWpQzvNGxgs2MCHyhOZmZT"
+      LIBP2P_PUBLIC_KEY: "CAISIQItZvtcRbkVNMwWLBjgoxNFm7DImzdMw1o6kp+ApD6gCw=="
+      MY_TOPIC: "decentralized-job-post-4"
+      REDIS_URL: "redis4"
+      REDIS_PORT: 6379
+      SUBSCRIBED_TOPICS: "decentralized-job-post-1,decentralized-job-post-2,decentralized-job-post-3"
+      FULL_STORAGE: "false"
+      DATABASE_URL: "postgres://postgres:postgres@postgres4:5432/node_storage"
+    ports:
+      - 8084:8080
+    networks:
+      - network4
+
+  postgres1:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: node_storage
+    ports:
+      - 5433:5432
+    networks:
+      - network1
+  postgres2:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: node_storage
+    ports:
+      - 5434:5432
+    networks:
+      - network2
+
+  postgres3:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: node_storage
+    ports:
+      - 5435:5432
+    networks:
+      - network3
+
+  postgres4:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: node_storage
+    ports:
+      - 5436:5432
+    networks:
+      - network4
+
+
+  redis1:
+    image: redis
+    ports:
+      - 6380:6379
+    networks:
+      - network1
+
+  redis2:
+    image: redis
+    ports:
+      - 6381:6379
+    networks:
+      - network2
+
+  redis3:
+    image: redis
+    ports:
+      - 6382:6379
+    networks:
+      - network3
+
+  redis4:
+    image: redis
+    ports:
+      - 6383:6379
+    networks:
+      - network4

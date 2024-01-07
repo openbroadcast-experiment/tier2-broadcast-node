@@ -25,7 +25,9 @@ RUN npm install -g pnpm
 COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY tsconfig.json ./
 EXPOSE 8080
 
-CMD [ "pnpm", "start"]
+CMD pnpm run migrate:docker && pnpm start
 #CMD tail -f /dev/null

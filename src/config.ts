@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import * as didJWT from 'did-jwt';
 import { peerIdFromKeys } from '@libp2p/peer-id';
 import { keys } from '@libp2p/crypto';
-import { marshalPrivateKey, marshalPublicKey, unmarshalPrivateKey, unmarshalPublicKey } from '@libp2p/crypto/keys';
 
 dotenv.config();
 export type Config = {
@@ -17,8 +16,8 @@ export type Config = {
   redisPort: number; // The port of the redis instance to connect to
   // wallet: ethers.Wallet; // Convenience property, ether wallet loaded with your private key ready to use
   powChallenge: string; // Should contain the suffix the must be present in a submitted PoW hash. If unsure, pass "0000"
-  tier1Endpoint: string; // For the hackathon submission, there's only one Tier 1 node
-  tier1Did: string; // The DID of the Tier 1 node
+  // tier1Endpoint: string; // For the hackathon submission, there's only one Tier 1 node
+  // tier1Did: string; // The DID of the Tier 1 node
   databaseUrl: string; // The URL of the database to connect to
   didJwtSigner: didJWT.Signer; // The signer used to sign JWTs
   port: number; // The port to run the server on
@@ -26,8 +25,9 @@ export type Config = {
   libp2pPort: number; // The port to run libp2p on
   libp2pHost: string; // The host to run libp2p on
   libp2pPeerId: any; // The peerId of the node
-  debugmode: boolean; 
-
+  subscribedTopics: { [key: string]: {} }; // The topics this node subscribes to
+  fullStorage: boolean; // If true, the node will store message data in the database
+  debugMode: boolean;
 }
 
 
@@ -45,6 +45,7 @@ function buf2hex(buffer: Uint8Array) { // buffer is an ArrayBuffer
     .map(x => x.toString(16).padStart(2, '0'))
     .join('');
 }
+
 //Load ether private key early because we use it in multiple config elements
 const etherPrivateKey = requireVarSet('PRIVATE_KEY');
 const wallet = new ethers.Wallet(etherPrivateKey);
@@ -53,7 +54,7 @@ const getPeerIdFromEthersPrivateKey = async (privateKey: string) => {
   // const publicKeyBuffer = Buffer.from(wallet.signingKey.publicKey.replace('0x', ''), 'hex');
   // const libp2pPrivateKey = marshalPrivateKey({ bytes: privateKeyBuffer }, 'secp256k1');
   // const libp2pPublicKey = marshalPublicKey({ bytes: publicKeyBuffer }, 'secp256k1');
-  //
+
   // const genKeys = await keys.generateKeyPair('secp256k1');
   //
   // const peerId = await peerIdFromKeys(genKeys.public.bytes, genKeys.bytes);
@@ -75,8 +76,11 @@ const getPeerIdFromEthersPrivateKey = async (privateKey: string) => {
 
 // console.log("loaded peerId from config: ", peerIdFromKeys(wallet.address, wallet.privateKey))
 // console.log("loaded peerId from config: ", peerIdFromString(etherPrivateKey))
-
-
+const subscribedTopics = (process.env.SUBSCRIBED_TOPICS || "").split(',').reduce((acc, topic) => {
+  acc[topic] = {};
+  return acc;
+}, {} as typeof config.subscribedTopics)
+console.log("subscribedTopics: ", subscribedTopics)
 // If the user MUST submit an envvar, use requireVarSet, which will throw an error if the envvar is empty or missing
 // If the user can optionally submit an envvar, use process.env["ENVVAR"] || "default value"
 // Generated values, like did, wallet, and publicKey, can be assigned directly to object properties
@@ -85,21 +89,19 @@ const getPeerIdFromEthersPrivateKey = async (privateKey: string) => {
 console.log('wallet signer private: ', wallet.signingKey.privateKey);
 console.log('wallet signer public: ', wallet.signingKey.publicKey);
 const genKeys = await keys.generateKeyPair('secp256k1');
-
-const peerIdPriv = Buffer.from(requireVarSet("LIBP2P_PRIVATE_KEY"), 'base64');
-const peerIdPub = Buffer.from(requireVarSet("LIBP2P_PUBLIC_KEY"), 'base64');
+const peerIdPriv = Buffer.from(requireVarSet('LIBP2P_PRIVATE_KEY'), 'base64');
+const peerIdPub = Buffer.from(requireVarSet('LIBP2P_PUBLIC_KEY'), 'base64');
 
 export const config: Config = {
   privateKey: etherPrivateKey,
   publicKey: wallet.address,
   did: 'did:pkh:eip155:1:' + wallet.address,
   myTopic: requireVarSet('MY_TOPIC'),
-  tier1Endpoint: requireVarSet('TIER1_ENDPOINT'),
-  tier1Did: requireVarSet('TIER1_DID'),
   databaseUrl: requireVarSet('DATABASE_URL'),
   didJwtSigner: didJWT.ES256KSigner(didJWT.hexToBytes(etherPrivateKey)),
   redisUrl: process.env.REDIS_URL || 'localhost',
   redisPort: parseInt(process.env.REDIS_PORT) || 6379,
+  subscribedTopics,
   // wallet: new ethers.Wallet(requireVarSet('PRIVATE_KEY')),
   powChallenge: process.env.POW_CHALLENGE || '0000',
   port: parseInt(process.argv[2]) || parseInt(process.env.REST_API_PORT) || 8080,
@@ -107,7 +109,8 @@ export const config: Config = {
   libp2pPort: parseInt(process.argv[3]) || parseInt(process.env.LIBP2P_PORT) || 4002,
   libp2pHost: process.env.LIBP2P_HOST || '0.0.0.0',
   libp2pPeerId: await peerIdFromKeys(peerIdPub, peerIdPriv),
-  debugmode: process.env.DEBUGMODE === 'true' || false,
+  fullStorage: process.env.FULL_STORAGE === 'true',
+  debugMode: process.env.DEBUGMODE === 'true',
 };
 console.log(await getPeerIdFromEthersPrivateKey(etherPrivateKey));
 console.log('finished loading config', config);

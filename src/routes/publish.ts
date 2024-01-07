@@ -5,12 +5,12 @@
 import { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { Static, Type } from '@sinclair/typebox';
 import { ProofOfWorkHeaders, ProofOfWorkHeadersType, requireProofOfWork } from '../middleware/proofOfWork.js';
-import { JwtVerifyHeaders, JwtVerifyHeadersType, verifySelfSignedJwt } from '../middleware/verifyJwt.js';
-import { libp2pNode } from '../p2p/node.js';
-import { CloudEvent, CloudEventV1 } from 'cloudevents';
+import { JwtVerifyHeadersType } from '../middleware/verifyJwt.js';
+import { CloudEventV1 } from 'cloudevents';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config.js';
-import { internalMessageQueue } from '../queue.js';
+import { publishQueue } from '../queue.js';
+
 export const PublishBody = Type.Object({
   data: Type.Optional(Type.Object({})), //TODO A string will work for now, but we need this to be "any" with an encoding param later
 });
@@ -27,13 +27,13 @@ export async function publishRoute(
   options: FastifyServerOptions,
 ) {
   server.post<{
-    Headers: ProofOfWorkHeadersType & JwtVerifyHeadersType & JwtPubSigType,
+    Headers: ProofOfWorkHeadersType /*& JwtVerifyHeadersType*/ & JwtPubSigType,
     Body: PublishBodyType,
     jwt: string
   }>('/publish', {
-    preHandler: [requireProofOfWork, verifySelfSignedJwt],
+    preHandler: [requireProofOfWork /*verifySelfSignedJwt*/],
     schema: {
-      headers: { ...ProofOfWorkHeaders, ...JwtVerifyHeaders },
+      headers: { ...ProofOfWorkHeaders /*...JwtVerifyHeaders },*/ },
       body: PublishBody,
     },
     handler: async (request, reply) => {
@@ -43,16 +43,16 @@ export async function publishRoute(
       console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
 
       const ce: CloudEventV1<any> = {
-        specversion: "1.0.2",
-        type: "/dili/classifieds",
+        specversion: '1.0.2',
+        type: '/dili/classifieds',
         source: userDid,
         id: uuidv4(),
         time: (new Date()).toUTCString(),
-        subject: `/dili/classifieds/author/${userDid}/entry_node${config.did}`,
-        datacontenttype: contentType || "application/json",
+        subject: `/dili/classifieds/author/${userDid}/entry_node/${config.did}`,
+        datacontenttype: contentType || 'application/json',
         data: data,
-      }
-      const res = await internalMessageQueue.add('messages', ce, { removeOnComplete: true, removeOnFail: true });
+      };
+      const res = await publishQueue.add('messages', ce, { removeOnComplete: true, removeOnFail: true });
       return reply.status(200).send(res);
     },
   });

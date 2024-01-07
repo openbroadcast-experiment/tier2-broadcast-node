@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyServerOptions } from 'fastify';
-import { Config, config } from '../config.js';
+import { config } from '../config.js';
 import { libp2pNode } from '../p2p/node.js';
-import { eventHistory, transmissionHistory } from '../p2p/history.js';
+import { eventHistory } from '../p2p/history.js';
 import { Static, Type } from '@sinclair/typebox';
+import { prisma } from '../index.js';
 
 
 const SubscibersQuerystring = Type.Object({
@@ -66,6 +67,16 @@ export default async function p2pRoutes(
       for(const topic of topics){
         subscribers[topic] = libp2pNode.services.pubsub.getSubscribers(topic)
       }
+      const myPublishedMessages = await prisma.published_data.findMany({
+        where: {
+          source: config.did
+        },
+        orderBy: {
+          updated_at: 'desc',
+        },
+        take: 10,
+      })
+
       const base = {
         peerId: libp2pNode.peerId,
         listenAddresses: libp2pNode.getMultiaddrs(),
@@ -76,7 +87,7 @@ export default async function p2pRoutes(
         topics,
         subscribers,
         config,
-        transmissionHistory,
+        transmissionHistory: myPublishedMessages,
         eventHistory,
       }
 
