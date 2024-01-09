@@ -22,17 +22,20 @@ const runUpMigrations = async () => {
                   source          TEXT                     NULL,
                   type            TEXT                     NULL,
                   subject         TEXT                     NULL,
-                  status          VARCHAR(20) CHECK (status IN ('PENDING', 'FAILED', 'SUCCESS')), --Internal column, unrelated to cloud events
+                  status          VARCHAR(20) CHECK (status IN ('PENDING', 'FAILED', 'SUCCESS', 'FLAGGED')), --Internal column, unrelated to cloud events
                   datacontenttype TEXT                     NULL,                                  --TODO Add validation on content type
                   data            TEXT                     NULL,
+                  signature      TEXT                     NULL,
                   spec_version    TEXT                     NULL     DEFAULT '1.0.2'::text,
                   time            TEXT                     NULL,
                   created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-                  updated_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                  updated_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                  UNIQUE(signature)
               );
     `
     await sql`CREATE INDEX IF NOT EXISTS "source_idx" ON "published_data" (source);`
     await sql`CREATE INDEX IF NOT EXISTS "subject_idx" ON "published_data" (subject);`
+    await sql`CREATE INDEX IF NOT EXISTS "signature" ON "published_data" (subject);`
     console.log("Created published_data table")
 
 

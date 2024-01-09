@@ -94,7 +94,7 @@ export default async function p2pRoutes(
       if(!showSensitive){
         base.config = {
           ...config,
-          privateKey: "hidden",
+          ethereumPrivateKey: "hidden",
         }
       }
       return reply.status(200).send(base)

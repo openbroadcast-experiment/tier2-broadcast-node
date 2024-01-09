@@ -4,56 +4,65 @@
 
 import { FastifyInstance, FastifyServerOptions } from 'fastify';
 import { Static, Type } from '@sinclair/typebox';
-import { ProofOfWorkHeaders, ProofOfWorkHeadersType, requireProofOfWork } from '../middleware/proofOfWork.js';
-import { JwtVerifyHeadersType } from '../middleware/verifyJwt.js';
 import { CloudEventV1 } from 'cloudevents';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config.js';
-import { publishQueue } from '../queue.js';
+
+import { publishQueue } from '../lib/queue/publishQueue.js';
 
 export const PublishBody = Type.Object({
-  data: Type.Optional(Type.Object({})), //TODO A string will work for now, but we need this to be "any" with an encoding param later
+  // signature: Type.String(),
+  encoding: Type.String({default: "application/json"}), //TODO Make this an enum
+  data: Type.Object({
+    // Required properties
+  }, {
+    additionalProperties: true,  // Allows unknown properties
+  })
 });
-export type PublishBodyType = Static<typeof PublishBody>
+  export type PublishBodyType = Static<typeof PublishBody>
 
-export const JwtPubSig = Type.Object({
-  'x-user-sig': Type.String(),
-  'x-payload-content-type': Type.String(),
-});
-export type JwtPubSigType = Static<typeof JwtPubSig>
-
-export async function publishRoute(
-  server: FastifyInstance,
-  options: FastifyServerOptions,
-) {
-  server.post<{
-    Headers: ProofOfWorkHeadersType /*& JwtVerifyHeadersType*/ & JwtPubSigType,
-    Body: PublishBodyType,
-    jwt: string
-  }>('/publish', {
-    preHandler: [requireProofOfWork /*verifySelfSignedJwt*/],
-    schema: {
-      headers: { ...ProofOfWorkHeaders /*...JwtVerifyHeaders },*/ },
-      body: PublishBody,
-    },
-    handler: async (request, reply) => {
-      const { data } = request.body;
-      const contentType = request.headers['x-payload-content-type'];
-      const { userDid } = request;
-      console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
-
-      const ce: CloudEventV1<any> = {
-        specversion: '1.0.2',
-        type: '/dili/classifieds',
-        source: userDid,
-        id: uuidv4(),
-        time: (new Date()).toUTCString(),
-        subject: `/dili/classifieds/author/${userDid}/entry_node/${config.did}`,
-        datacontenttype: contentType || 'application/json',
-        data: data,
-      };
-      const res = await publishQueue.add('messages', ce, { removeOnComplete: true, removeOnFail: true });
-      return reply.status(200).send(res);
-    },
+  export const JwtPubSig = Type.Object({
+    'x-user-sig': Type.String(),
+    'x-payload-content-type': Type.String(),
   });
-}
+  export type JwtPubSigType = Static<typeof JwtPubSig>
+
+  export async function publishRoute(
+    server: FastifyInstance,
+    options: FastifyServerOptions,
+  ) {
+    server.post<{
+      Headers: /*ProofOfWorkHeadersType & JwtVerifyHeadersType & */ JwtPubSigType,
+      Body: PublishBodyType,
+      jwt: string
+    }>('/publish', {
+      preHandler: [/*requireProofOfWork /*verifySelfSignedJwt*/],
+      schema: {
+        headers: { /*...ProofOfWorkHeaders /*...JwtVerifyHeaders },*/ },
+        body: PublishBody,
+      },
+      handler: async (request, reply) => {
+        const { data } = request.body;
+        const contentType = request.headers['x-payload-content-type'];
+        const { userDid } = request;
+        console.log('This is where I\'d send the message to Tier 1... if I had a Tier 1');
+
+        const ce: CloudEventV1<any> = {
+          specversion: '1.0.2',
+          type: '/dili/classifieds',
+          source: userDid,
+          id: uuidv4(),
+          time: (new Date()).toUTCString(),
+          subject: `/dili/classifieds/author/${config.ethereumPublicKey}`,
+          datacontenttype: contentType || 'application/json',
+          data: data,
+        };
+
+        //TODO Verify that subject contains type
+        //TODO verify that subject containes author/public key
+
+        const res = await publishQueue.add('messages', ce, { removeOnComplete: true, removeOnFail: true });
+        return reply.status(200).send(res);
+      },
+    });
+  }
