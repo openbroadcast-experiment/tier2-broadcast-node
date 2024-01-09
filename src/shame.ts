@@ -9,6 +9,7 @@ import PeerId from 'peer-id';
 import * as dag_json from '@ipld/dag-json';
 import { CID } from 'multiformats';
 import { sha256 } from 'multiformats/hashes/sha2';
+import { secp256k1 } from '@libp2p/interface';
 
 
 const validatorDid = 'did:pkh:eip155:1:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';

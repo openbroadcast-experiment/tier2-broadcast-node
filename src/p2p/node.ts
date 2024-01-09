@@ -15,7 +15,7 @@ import { Identify, identify } from '@libp2p/identify';
 import { dcutr } from '@libp2p/dcutr';
 import type { PubSub } from '@libp2p/interface';
 import { yamux } from '@chainsafe/libp2p-yamux';
-import { internalMessageQueue } from '../queue.js';
+import { internalMessageQueue } from '../lib/queue/messageQueue.js';
 
 
 const libp2pNode = await createLibp2p<{
@@ -91,9 +91,11 @@ libp2pNode.addEventListener('peer:connect', (evt) => {
   eventHistory.push({ eventType: 'peer:connect', data: evt.detail });
 });
 
+console.log(`Subscribing to my own topic: ${config.myTopic}`);
 libp2pNode.services.pubsub.subscribe(config.myTopic);
 
 for (const topic of Object.keys(config.subscribedTopics)) {
+  console.log(`Subscribing to topic: ${topic}`);
   libp2pNode.services.pubsub.subscribe(topic);
 }
 
