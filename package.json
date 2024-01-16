@@ -77,6 +77,8 @@
     "multiformats": "^12.1.3",
     "multihash": "github:multiformats/multihash",
     "peer-id": "^0.16.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
     "pkh-did-resolver": "^1.2.0",
     "postgres": "^3.4.3",
     "secp256k1": "^5.0.0",

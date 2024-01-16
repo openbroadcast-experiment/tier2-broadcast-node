@@ -14,6 +14,7 @@ import * as didJWT from 'did-jwt'; //NEW WINNER  didJWT.ES256KSigner(didJWT.hexT
 import { FastifyInstance, FastifyServerOptions } from "fastify";
 import { config } from "../config.js";
 import { JwtVerifyHeaders, JwtVerifyHeadersType, verifySelfSignedJwt } from '../middleware/verifyJwt.js';
+import { logger } from '../logger.js';
 
 export async function proofOfLatencyRoute(
     server: FastifyInstance,
@@ -38,6 +39,12 @@ export async function proofOfLatencyRoute(
                 },
                 { issuer: config.did, signer: config.didJwtSigner },
                 { alg: 'ES256K' });
+
+            logger.info({
+                statusCode: 200,
+                respondingJwt,
+                message: "Proof of work: Succesfull"
+            });
 
             return reply.status(200).send(respondingJwt);
         }
